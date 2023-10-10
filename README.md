@@ -5,6 +5,7 @@ To use this project, Ensure you have the following:
   1. Your own AWS account, with access keys for a deployment role.
   2. Docker installed on your machine.
   3. Terraform installed on your machine
+  4. AWS CLI Installed
 
 Steps to use:
   1. Clone the repo to your desired location

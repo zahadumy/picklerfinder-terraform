@@ -77,7 +77,10 @@ def delete_leave(leave_id):
     if request.method == 'POST' or request.method == 'DELETE':
         deletLeaveDay(leave_id)
     return redirect(url_for('index'))
-    
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return "Healthy"
 
 if __name__ == '__main__':
     # create_tables()
