@@ -61,7 +61,7 @@ resource "aws_ecs_service" "ecs_service" {
 
 # This block registers the tasks to a target group of the loadbalancer.
   load_balancer {
-    target_group_arn                    = aws_lb_target_group.target_group.arn
+    target_group_arn                    = aws_lb_target_group.target_group.arn #the target group defined in the alb file
     container_name                      = "test-container"
     container_port                      = var.container_port
   }
