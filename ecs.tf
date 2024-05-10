@@ -3,19 +3,19 @@
 ##########################################################################################
 
 #ECS cluster
-resource "aws_ecs_cluster" "ecs_cluster" {
-    name                                = "test-ecs-cluster"
+resource "aws_ecs_cluster" "development_ecs_cluster" {
+    name                                = "development"
 }
 
 #The Task Definition used in conjunction with the ECS service
-resource "aws_ecs_task_definition" "task_definition" {
-    family                              = "test-family"
+resource "aws_ecs_task_definition" "booking_td" {
+    family                              = "booking-td"
     # container definitions describes the configurations for the task
     container_definitions               = jsonencode(
     [
     {
-        "name"                          : "test-container",
-        "image"                         : "${aws_ecr_repository.ecr.repository_url}:latest",
+        "name"                          : "booking-container",
+        "image"                         : "${aws_ecr_repository.booking_ecr.repository_url}:latest",
         "entryPoint"                    : []
         "essential"                     : true,
         "networkMode"                   : "awsvpc",
@@ -26,16 +26,16 @@ resource "aws_ecs_task_definition" "task_definition" {
                                             }
                                           ]
         "healthCheck"                   : {
-                                            "command"     : [ "CMD-SHELL", "curl -f http://localhost:8081/ || exit 1" ],
+                                            "command"     : [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ],
                                             "interval"    : 30,
                                             "timeout"     : 5,
-                                            "startPeriod" : 10,
-                                            "retries"     :3
+                                            "startPeriod" : 180,
+                                            "retries"     : 3
                                           }
     }
     ] 
     )
-    #Fargate is used as opposed to EC2, so we do not need to manage the EC2 instances. Fargate is serveless
+    #Fargate is used as opposed to EC2, so we do not need to manage the EC2 instances. Fargate is serverless
     requires_compatibilities            = ["FARGATE"]
     network_mode                        = "awsvpc"
     cpu                                 = "256"
@@ -45,13 +45,14 @@ resource "aws_ecs_task_definition" "task_definition" {
 }
 
 #The ECS service described. This resources allows you to manage tasks
-resource "aws_ecs_service" "ecs_service" {
-    name                                = "test-ecs-service"
-    cluster                             = aws_ecs_cluster.ecs_cluster.arn
-    task_definition                     = aws_ecs_task_definition.task_definition.arn
+resource "aws_ecs_service" "booking_service" {
+    name                                = "booking-ecs-service"
+    cluster                             = aws_ecs_cluster.development_ecs_cluster.arn
+    task_definition                     = aws_ecs_task_definition.booking_td.arn
     launch_type                         = "FARGATE"
     scheduling_strategy                 = "REPLICA"
-    desired_count                       = 2 # the number of tasks you wish to run
+    desired_count                       = 1 # the number of tasks you wish to run
+    health_check_grace_period_seconds   = 180
 
   network_configuration {
     subnets                             = [aws_subnet.private_subnet_1.id , aws_subnet.private_subnet_2.id]
@@ -61,8 +62,8 @@ resource "aws_ecs_service" "ecs_service" {
 
 # This block registers the tasks to a target group of the loadbalancer.
   load_balancer {
-    target_group_arn                    = aws_lb_target_group.target_group.arn #the target group defined in the alb file
-    container_name                      = "test-container"
+    target_group_arn                    = aws_lb_target_group.booking_tg.arn
+    container_name                      = "booking-container"
     container_port                      = var.container_port
   }
   depends_on                            = [aws_lb_listener.listener]

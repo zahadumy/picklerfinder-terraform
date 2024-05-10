@@ -3,8 +3,8 @@
 #################################################################################################
 
 #Defining the Application Load Balancer
-resource "aws_alb" "application_load_balancer" {
-  name                      = "test-alb"
+resource "aws_alb" "booking_alb" {
+  name                      = "booking"
   internal                  = false
   load_balancer_type        = "application"
   subnets                   = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
@@ -12,14 +12,14 @@ resource "aws_alb" "application_load_balancer" {
 }
 
 #Defining the target group and a health check on the application
-resource "aws_lb_target_group" "target_group" {
-  name                      = "test-tg"
+resource "aws_lb_target_group" "booking_tg" {
+  name                      = "booking-tg"
   port                      = var.container_port
   protocol                  = "HTTP"
   target_type               = "ip"
   vpc_id                    = aws_vpc.vpc.id
   health_check {
-      path                  = "/health"
+      path                  = "/actuator/health"
       protocol              = "HTTP"
       matcher               = "200"
       port                  = "traffic-port"
@@ -32,12 +32,12 @@ resource "aws_lb_target_group" "target_group" {
 
 #Defines an HTTP Listener for the ALB
 resource "aws_lb_listener" "listener" {
-  load_balancer_arn         = aws_alb.application_load_balancer.arn
+  load_balancer_arn         = aws_alb.booking_alb.arn
   port                      = "80"
   protocol                  = "HTTP"
 
   default_action {
     type                    = "forward"
-    target_group_arn        = aws_lb_target_group.target_group.arn
+    target_group_arn        = aws_lb_target_group.booking_tg.arn
   }
 }

@@ -41,8 +41,8 @@ variable "availibilty_zone_2" {
 variable "default_tags" {
   type = map
   default = {
-    Application = "Demo App"
-    Environment = "Dev"
+    application = "picklerfinder"
+    environment = "development"
   }
 }
 
@@ -62,4 +62,3 @@ variable "credential_profile" {
   description = "Profile name in your credentials file"
   type        = string
 }
-  

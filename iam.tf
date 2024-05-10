@@ -3,7 +3,7 @@
 #################################################################################################
 
 resource "aws_iam_role" "ecsTaskExecutionRole" {
-    name                  = "test-app-ecsTaskExecutionRole"
+    name                  = "ecsTaskExecutionRole"
     assume_role_policy    = data.aws_iam_policy_document.assume_role_policy.json
 }
 
@@ -25,10 +25,24 @@ resource "aws_iam_role_policy_attachment" "ecsTaskExecutionRole_policy" {
 
 resource "aws_iam_role" "ecsTaskRole" {
     name                  = "ecsTaskRole"
-    assume_role_policy    = data.aws_iam_policy_document.assume_role_policy.json   
+    assume_role_policy    = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecsTaskRole_policy" {
-    role                  = aws_iam_role.ecsTaskRole.name
-    policy_arn            = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+data "aws_iam_policy_document" "get_booking_db_password_secret" {
+  statement {
+    actions   = ["secretsmanager:DescribeSecret", "secretsmanager:GetSecretValue"]
+    resources = [aws_secretsmanager_secret.booking_db_password.arn]
+    effect    = "Allow"
+  }
+}
+
+resource "aws_iam_policy" "get_booking_db_password_secret" {
+  name        = "get-booking-db-password-secret-policy"
+  policy      = data.aws_iam_policy_document.get_booking_db_password_secret.json
+}
+
+# required for the ECS task to read booking_db_password
+resource "aws_iam_role_policy_attachment" "allow_ecsTaskRole_get_db_password_secret" {
+  role       = aws_iam_role.ecsTaskRole.name
+  policy_arn = aws_iam_policy.get_booking_db_password_secret.arn
 }

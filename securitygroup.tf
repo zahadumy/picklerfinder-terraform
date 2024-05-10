@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 resource "aws_security_group" "ecs_sg" {
     vpc_id                      = aws_vpc.vpc.id
-    name                        = "demo-sg-ecs"
+    name                        = "booking-sg-ecs"
     description                 = "Security group for ecs app"
     revoke_rules_on_delete      = true
 }
@@ -37,7 +37,7 @@ resource "aws_security_group_rule" "ecs_all_egress" {
 # ------------------------------------------------------------------------------
 resource "aws_security_group" "alb_sg" {
     vpc_id                      = aws_vpc.vpc.id
-    name                        = "demo-sg-alb"
+    name                        = "booking-sg-alb"
     description                 = "Security group for alb"
     revoke_rules_on_delete      = true
 }
@@ -73,4 +73,17 @@ resource "aws_security_group_rule" "alb_egress" {
     description                 = "Allow outbound traffic from alb"
     security_group_id           = aws_security_group.alb_sg.id
     cidr_blocks                 = ["0.0.0.0/0"] 
+}
+
+# security group for RDS Database Instance
+resource "aws_security_group" "rds_sg" {
+    name = "rds_sg"
+    vpc_id = aws_vpc.vpc.id
+
+    ingress {
+        from_port   = 3306
+        to_port     = 3306
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
 }
