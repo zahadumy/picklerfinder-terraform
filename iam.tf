@@ -28,17 +28,17 @@ resource "aws_iam_role" "ecsTaskRole" {
     assume_role_policy    = data.aws_iam_policy_document.assume_role_policy.json
 }
 
-data "aws_iam_policy_document" "get_booking_db_password_secret" {
+data "aws_iam_policy_document" "get_booking_db_details_secret" {
   statement {
     actions   = ["secretsmanager:DescribeSecret", "secretsmanager:GetSecretValue"]
-    resources = [aws_secretsmanager_secret.booking_db_password.arn]
+    resources = [aws_secretsmanager_secret.booking_db_details.arn]
     effect    = "Allow"
   }
 }
 
 resource "aws_iam_policy" "get_booking_db_password_secret" {
   name        = "get-booking-db-password-secret-policy"
-  policy      = data.aws_iam_policy_document.get_booking_db_password_secret.json
+  policy      = data.aws_iam_policy_document.get_booking_db_details_secret.json
 }
 
 # required for the ECS task to read booking_db_password
