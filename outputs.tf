@@ -1,6 +1,6 @@
-output "backend_swagger" {
-  value       = "http://${aws_alb.booking_alb.dns_name}/swagger-ui.html"
+output "booking_swagger" {
+  value = "https://${aws_route53_record.pf-booking_route53_record.fqdn}/swagger-ui.html"
 }
-output "s3_url" {
-  value       = "http://${aws_s3_bucket_website_configuration.config.website_endpoint}"
+output "ai-integration_swagger" {
+  value = "https://${aws_route53_record.pf-ai-integration_route53_record.fqdn}/swagger-ui.html"
 }

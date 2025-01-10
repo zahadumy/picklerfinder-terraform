@@ -9,8 +9,20 @@ resource "aws_ecr_repository" "booking_ecr" {
 }
 
 #The ECR policy describes the management of images in the repo
-resource "aws_ecr_lifecycle_policy" "ecr_policy" {
+resource "aws_ecr_lifecycle_policy" "ecr_policy1" {
     repository                      = aws_ecr_repository.booking_ecr.name
+    policy                          = local.ecr_policy
+}
+
+#Creation of the ECR repo
+resource "aws_ecr_repository" "ai-integration_ecr" {
+    name                            = "ai-integration-repo"
+    force_delete = true
+}
+
+#The ECR policy describes the management of images in the repo
+resource "aws_ecr_lifecycle_policy" "ecr_policy2" {
+    repository                      = aws_ecr_repository.ai-integration_ecr.name
     policy                          = local.ecr_policy
 }
 
