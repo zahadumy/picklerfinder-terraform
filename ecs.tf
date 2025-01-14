@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "booking_td" {
                                             }
                                           ]
         "healthCheck"                   : {
-                                            "command"     : [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ],
+                                            "command"     : [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/booking/actuator/health || exit 1" ],
                                             "interval"    : 30,
                                             "timeout"     : 5,
                                             "startPeriod" : 180,
@@ -63,7 +63,7 @@ resource "aws_ecs_task_definition" "ai-integration_td" {
                                             }
                                           ]
         "healthCheck"                   : {
-                                            "command"     : [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ],
+                                            "command"     : [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ai-integration/actuator/health || exit 1" ],
                                             "interval"    : 30,
                                             "timeout"     : 5,
                                             "startPeriod" : 180,
@@ -102,7 +102,7 @@ resource "aws_ecs_service" "booking_service" {
     container_name                      = "booking-container"
     container_port                      = var.container_port
   }
-  depends_on                            = [aws_lb_listener.booking_listener]
+  depends_on                            = [aws_lb_listener.listener]
 }
 
 resource "aws_ecs_service" "ai-integration_service" {
@@ -126,5 +126,5 @@ resource "aws_ecs_service" "ai-integration_service" {
     container_name                      = "ai-integration-container"
     container_port                      = var.container_port
   }
-  depends_on                            = [aws_lb_listener.ai-integration_listener]
+  depends_on                            = [aws_lb_listener.listener]
 }
